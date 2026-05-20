@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neon Decision Lab</title>
+    <meta
+      name="description"
+      content="Um jogo rápido de decisões, risco e combo. Experimento gratuito criado para navegador."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">experimento gratuito de navegador</span>
+          <h1>Neon <strong>Decision</strong> Lab</h1>
+          <p>
+            Tome decisões rápidas, controle o risco, acumule combo e tente
+            terminar como um fundador cyberpunk.
+          </p>
+        </div>
+
+        <aside class="record-card">
+          <span>Recorde local</span>
+          <strong id="bestScore">0</strong>
+          <small>Salvo só no seu navegador, sem conta e sem servidor.</small>
+        </aside>
+      </section>
+
+      <section id="introScreen" class="panel intro-grid">
+        <div>
+          <div class="icon-badge">⚡</div>
+          <h2>45 segundos. 10 rodadas. Zero cadastro.</h2>
+          <p>
+            Cada carta traz uma situação caótica. Escolha uma resposta e veja
+            seu impacto em pontos, risco e combo.
+          </p>
+
+          <div class="rules-grid">
+            <article>
+              <h3>Escolha rápido</h3>
+              <p>Cada carta tem 3 decisões possíveis.</p>
+            </article>
+            <article>
+              <h3>Controle o risco</h3>
+              <p>Risco alto tira pontos e pode encerrar o jogo.</p>
+            </article>
+            <article>
+              <h3>Faça combos</h3>
+              <p>Boas escolhas seguidas dão bônus.</p>
+            </article>
+          </div>
+
+          <button id="startButton" class="primary-button">Iniciar experimento</button>
+        </div>
+
+        <div class="why-card">
+          <h3>Por que esse projeto?</h3>
+          <p>
+            Ele é pequeno, visual, gratuito e fácil de publicar. Depois pode
+            virar quiz, app de estudo, jogo de decisões ou simulador de negócios.
+          </p>
+        </div>
+      </section>
+
+      <section id="gameScreen" class="game-grid hidden">
+        <aside class="panel stats-panel">
+          <div class="stats-grid">
+            <div class="stat"><span>Tempo</span><strong id="timeLeft">45s</strong></div>
+            <div class="stat"><span>Rodada</span><strong id="round">1/10</strong></div>
+            <div class="stat"><span>Pontos</span><strong id="score">0</strong></div>
+            <div class="stat"><span>Combo</span><strong id="combo">x0</strong></div>
+          </div>
+
+          <div class="risk-box">
+            <div class="risk-label">
+              <span>Risco</span>
+              <strong id="riskLabel">Controlado</strong>
+            </div>
+            <div class="risk-track"><div id="riskBar" class="risk-bar"></div></div>
+          </div>
+
+          <div id="lastChoice" class="last-choice hidden"></div>
+        </aside>
+
+        <article class="panel card-panel">
+          <span class="card-kicker">carta de decisão</span>
+          <h2 id="cardTitle"></h2>
+          <p id="cardScenario"></p>
+          <div id="options" class="options"></div>
+        </article>
+      </section>
+
+      <section id="resultScreen" class="panel result-card hidden">
+        <div class="icon-badge">🏆</div>
+        <span class="card-kicker">resultado</span>
+        <h2 id="endingTitle"></h2>
+        <p id="endingText"></p>
+
+        <div class="result-stats">
+          <div class="stat"><span>Pontos</span><strong id="finalScore">0</strong></div>
+          <div class="stat"><span>Risco</span><strong id="finalRisk">0%</strong></div>
+          <div class="stat"><span>Recorde</span><strong id="finalBest">0</strong></div>
+        </div>
+
+        <button id="restartButton" class="primary-button">Jogar de novo</button>
+      </section>
+    </main>
+
+    <script src="./src/main.js"></script>
+  </body>
+</html>
