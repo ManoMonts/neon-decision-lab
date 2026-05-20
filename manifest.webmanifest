@@ -1,0 +1,19 @@
+{
+  "name": "Neon Decision Lab",
+  "short_name": "Neon Lab",
+  "description": "Um jogo rápido de decisões, risco e combo.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
