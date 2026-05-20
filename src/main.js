@@ -1,6 +1,11 @@
 const STARTING_TIME = 45;
 const MAX_ROUNDS = 10;
 
+const STORAGE_KEYS = {
+  records: "neon-decision-records-v2",
+  achievements: "neon-decision-achievements-v1",
+};
+
 const modes = {
   chaos: {
     label: "Modo Caos",
@@ -131,7 +136,59 @@ const modes = {
       },
     ],
   },
+  quiz: {
+    label: "Modo Quiz",
+    icon: "🧠",
+    description: "Perguntas rápidas com resposta certa, erro custando risco e bônus por acerto.",
+    cards: [
+      {
+        title: "MVP",
+        scenario: "Em produto digital, o que significa começar por um MVP?",
+        options: [
+          { text: "Criar a menor versão capaz de testar a ideia", points: 30, risk: -10, vibe: "Resposta certa", correct: true },
+          { text: "Criar o app completo antes de mostrar", points: -15, risk: 15, vibe: "Escopo pesado" },
+          { text: "Fazer só uma logo e vender como produto", points: -10, risk: 10, vibe: "Fumaça sem motor" },
+        ],
+      },
+      {
+        title: "GitHub Pages",
+        scenario: "Qual tipo de projeto combina mais com GitHub Pages?",
+        options: [
+          { text: "Site estático com HTML, CSS e JavaScript", points: 30, risk: -10, vibe: "Resposta certa", correct: true },
+          { text: "Banco de dados PostgreSQL pesado", points: -15, risk: 20, vibe: "Lugar errado" },
+          { text: "Servidor privado rodando 24h", points: -10, risk: 15, vibe: "Não é essa praia" },
+        ],
+      },
+      {
+        title: "LocalStorage",
+        scenario: "Para que serve o localStorage neste jogo?",
+        options: [
+          { text: "Salvar dados simples no navegador", points: 30, risk: -10, vibe: "Resposta certa", correct: true },
+          { text: "Substituir um backend completo com segurança", points: -20, risk: 20, vibe: "Exagerou" },
+          { text: "Hospedar o site na internet", points: -15, risk: 15, vibe: "Confundiu as peças" },
+        ],
+      },
+      {
+        title: "PWA",
+        scenario: "O que uma PWA tenta aproximar em um site?",
+        options: [
+          { text: "Uma experiência parecida com app instalável", points: 30, risk: -10, vibe: "Resposta certa", correct: true },
+          { text: "Um arquivo PDF automático", points: -10, risk: 10, vibe: "Nada a ver" },
+          { text: "Um antivírus do navegador", points: -15, risk: 15, vibe: "Viajou legal" },
+        ],
+      },
+    ],
+  },
 };
+
+const achievements = [
+  { id: "first_run", icon: "🎮", title: "Primeiro mergulho", description: "Terminou sua primeira partida." },
+  { id: "score_100", icon: "🔥", title: "Esquentou", description: "Fez 100 pontos ou mais." },
+  { id: "score_160", icon: "⚡", title: "Alta voltagem", description: "Fez 160 pontos ou mais." },
+  { id: "low_risk", icon: "🧊", title: "Cabeça fria", description: "Terminou com risco abaixo de 25%." },
+  { id: "quiz_master", icon: "🧠", title: "Cérebro neon", description: "Fez 100+ no Modo Quiz." },
+  { id: "all_modes", icon: "🏁", title: "Explorador", description: "Jogou em todos os modos." },
+];
 
 const endings = [
   { min: 170, title: "Fundador Cyberpunk", text: "Você jogou no modo visão + execução. O protótipo sairia do papel." },
@@ -149,7 +206,8 @@ let state = {
   cardIndex: 0,
   mode: "chaos",
   timer: null,
-  best: Number(localStorage.getItem("neon-decision-best") || 0),
+  records: readJson(STORAGE_KEYS.records, {}),
+  unlocked: readJson(STORAGE_KEYS.achievements, []),
 };
 
 const els = {
@@ -158,6 +216,9 @@ const els = {
   gameScreen: document.querySelector("#gameScreen"),
   resultScreen: document.querySelector("#resultScreen"),
   modeGrid: document.querySelector("#modeGrid"),
+  modeRecords: document.querySelector("#modeRecords"),
+  achievementPreview: document.querySelector("#achievementPreview"),
+  unlockedAchievements: document.querySelector("#unlockedAchievements"),
   startButton: document.querySelector("#startButton"),
   restartButton: document.querySelector("#restartButton"),
   backButton: document.querySelector("#backButton"),
@@ -180,7 +241,7 @@ const els = {
 };
 
 function init() {
-  els.bestScore.textContent = state.best;
+  renderDashboard();
   renderModes();
   els.startButton.addEventListener("click", startGame);
   els.restartButton.addEventListener("click", startGame);
@@ -189,6 +250,36 @@ function init() {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
   }
+}
+
+function readJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getGlobalBest() {
+  return Math.max(0, ...Object.values(state.records).map((value) => Number(value) || 0));
+}
+
+function renderDashboard() {
+  els.bestScore.textContent = getGlobalBest();
+  els.modeRecords.innerHTML = Object.entries(modes)
+    .map(([key, mode]) => `<div><span>${mode.icon} ${mode.label}</span><strong>${state.records[key] || 0}</strong></div>`)
+    .join("");
+
+  els.achievementPreview.innerHTML = achievements
+    .map((item) => {
+      const unlocked = state.unlocked.includes(item.id);
+      return `<div class="achievement ${unlocked ? "unlocked" : "locked"}"><span>${unlocked ? item.icon : "🔒"}</span><div><strong>${item.title}</strong><small>${item.description}</small></div></div>`;
+    })
+    .join("");
 }
 
 function renderModes() {
@@ -201,6 +292,7 @@ function renderModes() {
       <span class="mode-icon">${mode.icon}</span>
       <strong>${mode.label}</strong>
       <small>${mode.description}</small>
+      <em>Recorde: ${state.records[key] || 0}</em>
     `;
     button.addEventListener("click", () => {
       state.mode = key;
@@ -241,25 +333,63 @@ function backToIntro() {
   els.resultScreen.classList.add("hidden");
   els.gameScreen.classList.add("hidden");
   els.introScreen.classList.remove("hidden");
+  renderDashboard();
   renderModes();
 }
 
 function finishGame() {
   clearInterval(state.timer);
-  if (state.score > state.best) {
-    state.best = state.score;
-    localStorage.setItem("neon-decision-best", String(state.best));
+  const currentBest = state.records[state.mode] || 0;
+  if (state.score > currentBest) {
+    state.records[state.mode] = state.score;
+    saveJson(STORAGE_KEYS.records, state.records);
   }
 
+  const newlyUnlocked = unlockAchievements();
   const ending = endings.find((item) => state.score >= item.min);
+
   els.gameScreen.classList.add("hidden");
   els.resultScreen.classList.remove("hidden");
   els.endingTitle.textContent = ending.title;
   els.endingText.textContent = ending.text;
   els.finalScore.textContent = state.score;
   els.finalRisk.textContent = `${state.risk}%`;
-  els.finalBest.textContent = state.best;
-  els.bestScore.textContent = state.best;
+  els.finalBest.textContent = state.records[state.mode] || state.score;
+  els.bestScore.textContent = getGlobalBest();
+  renderUnlocked(newlyUnlocked);
+}
+
+function unlockAchievements() {
+  const playedModes = Object.keys(state.records);
+  const candidates = [
+    "first_run",
+    state.score >= 100 && "score_100",
+    state.score >= 160 && "score_160",
+    state.risk < 25 && "low_risk",
+    state.mode === "quiz" && state.score >= 100 && "quiz_master",
+    playedModes.length >= Object.keys(modes).length && "all_modes",
+  ].filter(Boolean);
+
+  const before = new Set(state.unlocked);
+  candidates.forEach((id) => before.add(id));
+  const next = [...before];
+  const newlyUnlocked = next.filter((id) => !state.unlocked.includes(id));
+  state.unlocked = next;
+  saveJson(STORAGE_KEYS.achievements, state.unlocked);
+  return newlyUnlocked;
+}
+
+function renderUnlocked(ids) {
+  if (!ids.length) {
+    els.unlockedAchievements.innerHTML = `<div class="achievement locked"><span>✨</span><div><strong>Nenhuma conquista nova</strong><small>Jogue melhor ou teste outro modo.</small></div></div>`;
+    return;
+  }
+
+  els.unlockedAchievements.innerHTML = ids
+    .map((id) => achievements.find((item) => item.id === id))
+    .filter(Boolean)
+    .map((item) => `<div class="achievement unlocked"><span>${item.icon}</span><div><strong>${item.title}</strong><small>${item.description}</small></div></div>`)
+    .join("");
 }
 
 function choose(option) {
@@ -312,7 +442,6 @@ function renderStats() {
   els.combo.textContent = `x${state.combo}`;
   els.riskLabel.textContent = getRiskLabel();
   els.riskBar.style.width = `${state.risk}%`;
-  els.bestScore.textContent = state.best;
 }
 
 function renderCard() {
@@ -329,7 +458,7 @@ function renderCard() {
       <span class="option-number">${index + 1}</span>
       <span>
         <strong>${option.text}</strong>
-        <small>Escolha e veja o impacto.</small>
+        <small>${option.correct ? "Resposta potencialmente certa." : "Escolha e veja o impacto."}</small>
       </span>
     `;
     button.addEventListener("click", () => choose(option));
