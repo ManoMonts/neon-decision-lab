@@ -18,10 +18,10 @@
         <div class="hero-copy">
           <span class="eyebrow">laboratório gratuito de decisões</span>
           <h1>Neon <strong>Decision</strong> Lab</h1>
-          <p>Um jogo de escolhas rápidas com modos temáticos, risco, combo, recorde local e cara de app.</p>
+          <p>Um jogo de escolhas rápidas com modos temáticos, quiz, risco, combo, conquistas e cara de app.</p>
         </div>
         <aside class="record-card">
-          <span>Recorde local</span>
+          <span>Melhor recorde</span>
           <strong id="bestScore">0</strong>
           <small>Salvo só no navegador. Sem conta, sem banco, sem custo.</small>
         </aside>
@@ -36,9 +36,10 @@
           <button id="startButton" class="primary-button">Iniciar experimento</button>
         </div>
         <div class="why-card">
-          <h3>Experimento escalável</h3>
-          <p>Começou como jogo, mas a estrutura permite virar quiz de prova, simulador de negócios, treino de escolhas ou app instalável.</p>
-          <div class="install-note">PWA preparado: quando publicado com HTTPS, pode aparecer como app instalável no navegador/celular.</div>
+          <h3>Painel do jogador</h3>
+          <p>Agora o jogo guarda recordes por modo e libera conquistas conforme seu desempenho.</p>
+          <div id="modeRecords" class="mini-panel"></div>
+          <div id="achievementPreview" class="achievement-list"></div>
         </div>
       </section>
 
@@ -71,10 +72,11 @@
         <span class="card-kicker">resultado</span>
         <h2 id="endingTitle"></h2>
         <p id="endingText"></p>
+        <div id="unlockedAchievements" class="achievement-list result-achievements"></div>
         <div class="result-stats">
           <div class="stat"><span>Pontos</span><strong id="finalScore">0</strong></div>
           <div class="stat"><span>Risco</span><strong id="finalRisk">0%</strong></div>
-          <div class="stat"><span>Recorde</span><strong id="finalBest">0</strong></div>
+          <div class="stat"><span>Recorde do modo</span><strong id="finalBest">0</strong></div>
         </div>
         <div class="result-actions">
           <button id="restartButton" class="primary-button">Jogar de novo</button>
